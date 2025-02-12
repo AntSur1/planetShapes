@@ -2,6 +2,9 @@
 import pygame
 import math
 
+print("MAIN")
+
+
 # pygame setup
 pygame.init()
 
