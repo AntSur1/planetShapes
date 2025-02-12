@@ -1,4 +1,4 @@
-# Example file showing a circle moving on screen
+
 import pygame
 import math
 
@@ -138,32 +138,40 @@ def points_distance(p1, p2):
   return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
-# Generate floor
-def generate_floor(shape):
-  floorCoords = []
-  for coord in shape[0]:
-    floorCoords.append( points_distance((0, 0), (coord[0], coord[1])) )
-    
-    
-  return (floorCoords, shape[1])
-  
-
-# draw floor
-def draw_floor(shape, steps = 0):
-  floorCoords = generate_floor(shape)
-
-  x = FLOOR_CENTER[0] - steps*3 - 90
-  y = FLOOR_CENTER[1]
-  h = floorCoords[1]/2
-
+def draw_floor(shape, degrees_rotation=0):
+  # Compute distances between consecutive points
   distances = []
-  for i in range(len(shape[0])-1):
-    distances.append( points_distance(shape[0][i], shape[0][i+1]) )
-  distances.append( points_distance(shape[0][len(shape[0])-1], shape[0][0]) )
+  points = shape[0]
+  for i in range(len(points) - 1):
+      distances.append(points_distance(points[i], points[i+1]))
+  # Closing segment: from last point back to first
+  distances.append(points_distance(points[-1], points[0]))
   
-  for i in range(len(floorCoords[0])):
+  # Total perimeter (in pixels) after applying the shape's multiplier
+  perimeter = sum(distances) * shape[1]
+  
+  # Calculate the arc length per degree (assuming a full 360° sweep)
+  arc_length_per_degree = perimeter / 360.0
+  
+  # Determine the offset based on current rotation
+  offset = degrees_rotation * arc_length_per_degree
+  
+  # Start drawing the floor from an x position adjusted by the offset
+  x = FLOOR_CENTER[0] - offset
+  y = FLOOR_CENTER[1]
+  h = shape[1]
+  
+  # Draw vertical lines for each segment along the floor.
+  # (floorCoords[i] is the distance from (0,0) to the point, used here to vary the line height)
+  floorCoords = [points_distance((0, 0), p) for p in points]
+  
+  for i in range(len(points)):
+    # Advance x by the length of the current segment (scaled)
     x += distances[i] * shape[1]
-    pygame.draw.line(screen, (255, 255, 255), (x, y-floorCoords[0][i]*floorCoords[1]), (x, y+h))
+    # Compute floor line height based on the point's distance from origin
+    line_height = floorCoords[i] * shape[1]
+    pygame.draw.line(screen, (255, 255, 255), (x, y + h - line_height), (x, y + h))
+
 
 
 # _________________________ MAIN LOOP ___________________________
