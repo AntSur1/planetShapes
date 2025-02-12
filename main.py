@@ -15,7 +15,7 @@ SCREEN_CENTER	= (SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2)
 SHAPE_CENTER 	= (SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2.5)
 SIZE_MULTIPLIER = 200
 SHAPE_PRECISION = 1
-SHOULD_SPIN = True
+SHOULD_SPIN = False
 
 
 
@@ -91,11 +91,23 @@ heart = (c3, m3)
 def drawShape(shape, rotation = 0, color = (255, 255, 255), type = "line"):
 	shape_coords = rotate_points(shape[0], rotation)
 	multiplier = shape[1]
+
 	for i in range(len(shape_coords)):
 		if type == "line":
 			pygame.draw.line(screen, color, SHAPE_CENTER, (SHAPE_CENTER[0] + shape_coords[i][0]*multiplier, SHAPE_CENTER[1] + shape_coords[i][1]*multiplier))
 
 		elif type == "outline":
+			pos1 = (SHAPE_CENTER[0] + shape_coords[i][0]*multiplier, SHAPE_CENTER[1] + shape_coords[i][1]*multiplier)
+			if i == len(shape_coords):
+				pos2 = (SHAPE_CENTER[0] + shape_coords[0][0]*multiplier, SHAPE_CENTER[1] + shape_coords[0][1]*multiplier)
+			else:
+				pos2 = (SHAPE_CENTER[0] + shape_coords[i][0]*multiplier, SHAPE_CENTER[1] + shape_coords[i][1]*multiplier)
+
+			pygame.draw.line(screen, color, pos1, pos2, 3)
+	
+
+
+		elif type == "d_outline":
 			pos = (SHAPE_CENTER[0] + shape_coords[i][0]*multiplier, SHAPE_CENTER[1] + shape_coords[i][1]*multiplier)
 			pygame.draw.line(screen, color, pos, pos)
 
@@ -132,11 +144,16 @@ while is_running:
 
 	# Each frame draw:
 	if SHOULD_SPIN:
-		degrees_rotation += 1 if degrees_rotation < 360 else 0 
+		degrees_rotation += 1
+		if degrees_rotation >= 360:
+			degrees_rotation = 0
+
 
 	c = (255, 0, 0)
 	drawShape(circle, type = "outline")
-	drawShape(heart, degrees_rotation, c, type = "line")
+	# drawShape(heart, degrees_rotation, c, type = "outline")
+	drawShape(square, degrees_rotation, c, type = "line")
+
 
 
 	# flip() the display to draw
