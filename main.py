@@ -2,6 +2,9 @@
 import pygame
 import math
 
+print("AI-VERSION")
+
+
 # pygame setup
 pygame.init()
 
